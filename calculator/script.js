@@ -53,12 +53,15 @@ class Calculator {
     let computation;
     const prev = parseFloat(this.previousOperand);
     const current = parseFloat(this.currentOperand);
+    let prevDecimalValue;
+    let curDecimalValue;
+    let accuracy;
     if (isNaN(prev) || isNaN(current)) return;
     switch (this.operation) {
       case '+':
-        const prevDecimalValue = prev.toString().split('.')[1];
-        const curDecimalValue = prev.toString().split('.')[1];
-        let accuracy = 0;
+        prevDecimalValue = prev.toString().split('.')[1];
+        curDecimalValue = current.toString().split('.')[1];
+        accuracy = 0;
         if (prevDecimalValue) {
           accuracy = prevDecimalValue.toString().length;
         }
@@ -73,10 +76,50 @@ class Calculator {
         }
         break
       case '-':
+        prevDecimalValue = prev.toString().split('.')[1];
+        curDecimalValue = current.toString().split('.')[1];
+        accuracy = 0;
+        if (prevDecimalValue) {
+          accuracy = prevDecimalValue.toString().length;
+        }
+        if (curDecimalValue) {
+          accuracy = Math.max(accuracy,curDecimalValue.toString().length);
+        }
+
         computation = prev - current;
+
+        if (accuracy) {
+          computation = computation.toFixed(accuracy);
+        }
+
         break
       case '*':
-        computation = prev * current;
+        let decimalOperationAdditionPrev = 1;
+        let decimalDigitsPrev = prev.toString().split('.')[1];
+        if (decimalDigitsPrev) {
+          let additionalZeros= '';
+          for (let i = 0; i < decimalDigitsPrev.toString().length; i++) {
+            additionalZeros = additionalZeros + 0;
+          }
+          if (additionalZeros) {
+            decimalOperationAdditionPrev = +(decimalOperationAdditionPrev + additionalZeros);
+          }
+        }
+
+        let decimalOperationAdditionCur = 1;
+        let decimalDigitsCurrent = current.toString().split('.')[1]
+        if (decimalDigitsCurrent) {
+          let additionalZeros= '';
+          for (let i = 0; i < decimalDigitsCurrent.toString().length; i++) {
+            additionalZeros = additionalZeros + 0;
+          }
+          if (additionalZeros) {
+            decimalOperationAdditionCur = +(decimalOperationAdditionCur + additionalZeros);
+          }
+        }
+        let prevModified = prev * decimalOperationAdditionPrev;
+        let currentModified = current * decimalOperationAdditionCur;
+        computation = prevModified * currentModified / decimalOperationAdditionPrev / decimalOperationAdditionCur;
         break
       case '÷':
         computation = prev / current;
@@ -87,6 +130,7 @@ class Calculator {
       default:
         return;
     }
+    computation = computation * 1;
     this.readyToReset = true;
     this.currentOperand = computation;
     this.operation = undefined;
@@ -117,7 +161,7 @@ class Calculator {
 
   updateDisplay() {
     if (this.isError) {
-      this.currentOperandTextElement.innerText = 'Error. Please, reset :)';
+      this.currentOperandTextElement.innerText = 'Error! Press AC :)';
       return;
     }
     this.currentOperandTextElement.innerText =
