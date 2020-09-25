@@ -33,6 +33,8 @@ class Calculator {
       this.isError = true;
     }
     this.currentOperand = Math.pow(this.currentOperand, degree);
+    this.previousOperand = '';
+    this.operation = '';
   }
 
   chooseOperation(operation) {
@@ -79,6 +81,9 @@ class Calculator {
       case '÷':
         computation = prev / current;
         break
+      case '^':
+        computation = Math.pow(prev, current);
+        break;
       default:
         return;
     }
@@ -131,7 +136,6 @@ const numberButtons = document.querySelectorAll('[data-number]');
 const operationButtons = document.querySelectorAll('[data-operation]');
 const equalsButton = document.querySelector('[data-equals]');
 const deleteButton = document.querySelector('[data-delete]');
-const squareButton = document.querySelector('[data-square]');
 const squareRootButton = document.querySelector('[data-squere-root]');
 const minusButton = document.querySelector('[data-minus]');
 const allClearButton = document.querySelector('[data-all-clear]');
@@ -156,7 +160,11 @@ numberButtons.forEach(button => {
 
 operationButtons.forEach(button => {
   button.addEventListener('click', () => {
-    calculator.chooseOperation(button.innerText);
+    let textToShow = button.innerText;
+    switch (textToShow) {
+      case 'xy': textToShow = '^'; break;
+    }
+    calculator.chooseOperation(textToShow);
     calculator.updateDisplay();
   })
 })
@@ -175,11 +183,6 @@ deleteButton.addEventListener('click', button => {
   calculator.delete();
   calculator.updateDisplay();
 })
-
-squareButton.addEventListener('click', button => {
-  calculator.square(2);
-  calculator.updateDisplay();
-});
 
 squareRootButton.addEventListener('click', button => {
   calculator.square(0.5);
